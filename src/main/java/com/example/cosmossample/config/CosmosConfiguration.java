@@ -26,6 +26,9 @@ public class CosmosConfiguration extends AbstractCosmosConfiguration {
         return new CosmosClientBuilder()
             .endpoint(endpoint)
             .key(key)
+            // NOTE the custom serializer can be applied here client-wide
+            // or in xxxRequestOptions for individual operations (see 
+            // CosmosSpringBootSampleApplication#runScenario3_Jackson3ObjectNode).
             .customItemSerializer(new Jackson3ObjectNodeSerializer());
     }
 

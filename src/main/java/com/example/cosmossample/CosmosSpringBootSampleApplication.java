@@ -7,6 +7,8 @@ import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.PartitionKey;
 import com.example.cosmossample.model.Product;
 import com.example.cosmossample.repository.ProductRepository;
+import com.example.cosmossample.serializer.Jackson3ObjectNodeSerializer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -135,9 +137,17 @@ public class CosmosSpringBootSampleApplication {
             .getDatabase("sampledb")
             .getContainer("products");
 
+        // NOTE the custom serializer is applied via CosmosItemRequestOptions 
+        // for this operation only. This is a demo on how to use the 
+        // API - you can set a custom serializer client-wide 
+        // (see CosomosConfiguration#cosmosClientBuilder) or per operation 
+        // as shown here.
+        CosmosItemRequestOptions createRequestOptions = new CosmosItemRequestOptions()
+            .setCustomItemSerializer(new Jackson3ObjectNodeSerializer());
+            
         // Create – the custom serializer (set on CosmosClientBuilder) converts the Jackson-3 ObjectNode to a Map
         CosmosItemResponse<tools.jackson.databind.node.ObjectNode> createResp =
-            container.createItem(node3, new PartitionKey("music"), new CosmosItemRequestOptions());
+            container.createItem(node3, new PartitionKey("music"), createRequestOptions);
         log.info("  Created : statusCode={}, RU={}", createResp.getStatusCode(), createResp.getRequestCharge());
 
         // Read back as a Jackson-3 ObjectNode
